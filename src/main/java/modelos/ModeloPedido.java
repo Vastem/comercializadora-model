@@ -6,6 +6,7 @@ package modelos;
 
 import entidades.Pedido;
 import entidades.PedidoProducto;
+import entidades.Producto;
 import interfaces.IConexionBD;
 import interfaces.IModeloPedido;
 import java.util.ArrayList;
@@ -93,7 +94,18 @@ public class ModeloPedido implements IModeloPedido {
             session.getTransaction().begin();
             for(int i = 0; i < pedProds.size(); i++){
                 pedProds.get(i).setPedido(p);
+                Producto prod = pedProds.get(i).getProducto();
+                prod.setCantidadApartada(pedProds.get(i).getCantidad());
+                session.update(prod);
                 session.save(pedProds.get(i));
+            }
+            session.getTransaction().commit();
+            
+            session.getTransaction().begin();
+            for(int i = 0; i < pedProds.size(); i++){
+                Producto prod = pedProds.get(i).getProducto();
+                prod.setCantidadApartada(pedProds.get(i).getCantidad());
+                session.update(prod);
             }
             session.getTransaction().commit();
             return p;
