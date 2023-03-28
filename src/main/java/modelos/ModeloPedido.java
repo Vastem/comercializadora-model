@@ -62,6 +62,13 @@ public class ModeloPedido implements IModeloPedido {
         try {
             em.getTransaction().begin();
 
+            Query queryProductos = em.createQuery("SELECT e FROM PedidoProducto e");
+            List<PedidoProducto> pProds = queryProductos.getResultList();
+                
+            pProds.forEach(pp -> {
+                restarCantidadProducto(pp.getProducto(),pp.getCantidad());
+            });
+            
             Query queryPedidoProducto = em.createQuery("DELETE FROM PedidoProducto e WHERE e.pedido.id = :idPedido");
             queryPedidoProducto.setParameter("idPedido", pedido.getId()).executeUpdate();
 
@@ -95,18 +102,11 @@ public class ModeloPedido implements IModeloPedido {
             session.getTransaction().begin();
             for (int i = 0; i < pedProds.size(); i++) {
                 pedProds.get(i).setPedido(p);
+                
                 Producto prod = pedProds.get(i).getProducto();
-                prod.setCantidadApartada(pedProds.get(i).getCantidad());
-                session.update(prod);
+                sumarCantidadProducto(prod, pedProds.get(i).getCantidad());
+                
                 session.save(pedProds.get(i));
-            }
-            session.getTransaction().commit();
-
-            session.getTransaction().begin();
-            for (int i = 0; i < pedProds.size(); i++) {
-                Producto prod = pedProds.get(i).getProducto();
-                prod.setCantidadApartada(pedProds.get(i).getCantidad());
-                session.update(prod);
             }
             session.getTransaction().commit();
 
@@ -131,11 +131,18 @@ public class ModeloPedido implements IModeloPedido {
                 
                 em.getTransaction().begin();
                 Query query;
+                Query queryProductos = em.createQuery("SELECT e FROM PedidoProducto e");
+                List<PedidoProducto> pProds = queryProductos.getResultList();
+                
+                pProds.forEach(pp -> {
+                    restarCantidadProducto(pp.getProducto(),pp.getCantidad());
+                });
                 
                 //Eliminar pedidosProductos antiguos
                 query = em.createNativeQuery("delete from pedidosproductos where id_pedido = ?");
                 query.setParameter(1, pedidoActualizar.getId());
                 query.executeUpdate();
+                
                 em.getTransaction().commit();
 
 //                //Eliminar ventas antiguas ###IMPLEMENTAR
@@ -148,7 +155,7 @@ public class ModeloPedido implements IModeloPedido {
                 //Editar pedido
                 em.getTransaction().begin();
                 List<PedidoProducto> pedProds = pedido.getPedidosProducto();
-                List<Venta> etiquetas = pedido.getVentas();
+                //List<Venta> etiquetas = pedido.getVentas();
                 pedidoActualizar.setPedidosProducto(null);
 //                pedidoActualizar.setVentas(null);
                 pedidoActualizar.setCliente(pedido.getCliente());
@@ -167,6 +174,7 @@ public class ModeloPedido implements IModeloPedido {
                 pedProds.forEach(pp -> {
                     pp.setPedido(pedidoActualizar);
                     em.persist(pp);
+                    sumarCantidadProducto(pp.getProducto(),pp.getCantidad() );
                 });
                 em.getTransaction().commit();
 
@@ -197,5 +205,43 @@ public class ModeloPedido implements IModeloPedido {
         }
         return null;
     }
+
+    private void sumarCantidadProducto(Producto p, int cantidad){
+        EntityManager em = this.conexionBD.crearConexion();
+        Producto productoActualizar = em.find(Producto.class, p.getId());
+        
+        if(productoActualizar != null){
+            try {
+                em.getTransaction().begin();
+                productoActualizar.setCantidadApartada(productoActualizar.getCantidadApartada() + cantidad);
+                em.merge(productoActualizar);
+                em.getTransaction().commit();
+                em.clear();
+            } catch (IllegalStateException e) {
+                System.err.println("No se pudo actualizar el producto" + p.getId());
+                e.printStackTrace();
+            }
+        }
+        
+    }
+
+    private void restarCantidadProducto(Producto p, int cantidad){
+        EntityManager em = this.conexionBD.crearConexion();
+        Producto productoActualizar = em.find(Producto.class, p.getId());
+        
+        if(productoActualizar != null){
+            try {
+                em.getTransaction().begin();
+                productoActualizar.setCantidadApartada(productoActualizar.getCantidadApartada()-cantidad);
+                em.merge(productoActualizar);
+                em.getTransaction().commit();
+                em.clear();
+            } catch (IllegalStateException e) {
+                System.err.println("No se pudo actualizar el producto" + p.getId());
+                e.printStackTrace();
+            }
+        }
+    }
+
 
 }
