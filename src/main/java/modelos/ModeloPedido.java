@@ -61,7 +61,8 @@ public class ModeloPedido implements IModeloPedido {
         try {
             em.getTransaction().begin();
 
-            Query queryProductos = em.createQuery("SELECT e FROM PedidoProducto e");
+            Query queryProductos = em.createQuery("SELECT e FROM PedidoProducto e WHERE e.pedido.id = :idPedido");
+            queryProductos.setParameter("idPedido", pedido.getId()) ;
             List<PedidoProducto> pProds = queryProductos.getResultList();
                 
             pProds.forEach(pp -> {
