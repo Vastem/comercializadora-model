@@ -41,7 +41,7 @@ public class test {
         em = emf.createEntityManager();
         em.getTransaction().begin();
         
-        //em.persist(cliente);
+        em.persist(cliente);
         
         Cliente c = em.find(Cliente.class, 1);
         p.setCliente(c);
@@ -51,7 +51,7 @@ public class test {
         producto.setNombre("Camaron");
         producto.setPrecio(240);
         
-        //em.persist(producto);
+        em.persist(producto);
         
         Producto prod = em.find(Producto.class,1);
         

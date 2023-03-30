@@ -30,7 +30,7 @@ public class ModeloProducto implements IModeloProducto{
         EntityManager em = (EntityManager) this.conexionBD.crearConexion();
         try {
             Producto p = em.find(Producto.class, idProducto);
-            System.out.println(p);
+            em.clear();
             return p;
         } catch (IllegalStateException e) {
             System.err.println("No se pudo consultar el producto" + idProducto);
@@ -44,8 +44,9 @@ public class ModeloProducto implements IModeloProducto{
         EntityManager em = (EntityManager) this.conexionBD.crearConexion();
         try {
             Query query = em.createQuery("SELECT e FROM Producto e");
-            List<Producto> prod = new ArrayList();
-            return prod =query.getResultList();
+            List<Producto> prod = query.getResultList();
+            em.clear();
+            return prod;
         } catch (IllegalStateException e) {
             System.err.println("No se pudieron consultar los productos");
             e.printStackTrace();
@@ -61,6 +62,7 @@ public class ModeloProducto implements IModeloProducto{
             Query query = em.createQuery("DELETE FROM Producto e WHERE e.id = :idProducto");
             query.setParameter("idProducto", producto.getId()).executeUpdate();
             em.getTransaction().commit();
+            em.clear();
             return producto;
         } catch (IllegalStateException e) {
             System.err.println("No se pudo eliminar el producto" + producto.getId());
@@ -76,6 +78,7 @@ public class ModeloProducto implements IModeloProducto{
             em.getTransaction().begin();
             em.persist(producto);
             em.getTransaction().commit();
+            em.clear();
             return producto;
         } catch (IllegalStateException e) {
             System.err.println("No se pudo agregar el producto" + producto.getId());
@@ -94,6 +97,7 @@ public class ModeloProducto implements IModeloProducto{
                 em.getTransaction().begin();
                 em.merge(producto);
                 em.getTransaction().commit();
+                em.clear();
                 return producto;
             } catch (IllegalStateException e) {
                 System.err.println("No se pudo actualizar el producto" + producto.getId());

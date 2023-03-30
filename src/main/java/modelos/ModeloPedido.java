@@ -4,6 +4,7 @@
  */
 package modelos;
 
+import conexiones.ConexionBD;
 import entidades.Pedido;
 import entidades.PedidoProducto;
 import entidades.Producto;
@@ -32,7 +33,9 @@ public class ModeloPedido implements IModeloPedido {
     public Pedido consultar(Integer idPedido) {
         EntityManager em = this.conexionBD.crearConexion();
         try {
+            em.getTransaction().begin();
             Pedido p = em.find(Pedido.class, idPedido);
+            em.getTransaction().commit();
             return p;
         } catch (IllegalStateException e) {
             System.err.println("No se pudo consultar el pedido" + idPedido);
@@ -45,9 +48,11 @@ public class ModeloPedido implements IModeloPedido {
     public List<Pedido> consultar() {
         EntityManager em = this.conexionBD.crearConexion();
         try {
+            em.getTransaction().begin();
             Query query = em.createQuery("SELECT e FROM Pedido e");
-            List<Pedido> pedido = new ArrayList();
-            return pedido = query.getResultList();
+            List<Pedido> pedido = query.getResultList();
+            em.getTransaction().commit();
+            return pedido ;
         } catch (IllegalStateException e) {
             System.err.println("No se pudieron consultar los pedidos");
             e.printStackTrace();
@@ -64,18 +69,24 @@ public class ModeloPedido implements IModeloPedido {
             Query queryProductos = em.createQuery("SELECT e FROM PedidoProducto e WHERE e.pedido.id = :idPedido");
             queryProductos.setParameter("idPedido", pedido.getId()) ;
             List<PedidoProducto> pProds = queryProductos.getResultList();
+            
+            em.getTransaction().commit();
                 
             pProds.forEach(pp -> {
                 restarCantidadProducto(pp.getProducto(),pp.getCantidad());
             });
             
+            
+            em.getTransaction().begin();
             Query queryPedidoProducto = em.createQuery("DELETE FROM PedidoProducto e WHERE e.pedido.id = :idPedido");
             queryPedidoProducto.setParameter("idPedido", pedido.getId()).executeUpdate();
+            em.getTransaction().commit();
 
+            em.getTransaction().begin();
             Query query = em.createQuery("DELETE FROM Pedido e WHERE e.id = :idPedido");
             query.setParameter("idPedido", pedido.getId()).executeUpdate();
-
             em.getTransaction().commit();
+            
             em.clear();
             return pedido;
         } catch (IllegalStateException e) {
@@ -111,7 +122,6 @@ public class ModeloPedido implements IModeloPedido {
                     System.out.println("cantidad sumar: "+pp.getCantidad());
                     sumarCantidadProducto(pp.getProducto(),pp.getCantidad() );
             });
-            
             em.clear();
             return this.consultar(id);
         } catch (IllegalStateException e) {
@@ -196,7 +206,7 @@ public class ModeloPedido implements IModeloPedido {
 //                    }
 //                }
 //                em.getTransaction().commit();
-                  em.clear();
+                em.clear();
                 return this.consultar(pedidoActualizar.getId());
             } catch (IllegalStateException e) {
                 System.err.println("No se pudo actualizar el pedido " + pedido.getId() + e);
