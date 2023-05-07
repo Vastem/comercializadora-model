@@ -4,6 +4,7 @@
  */
 package modelos;
 
+import entidades.Cliente;
 import entidades.Pedido;
 import entidades.PedidoProducto;
 import entidades.Venta;
@@ -83,6 +84,22 @@ public class ModeoVenta implements IModeloVenta{
             em.getTransaction().begin();
             em.persist(venta);
             em.getTransaction().commit();
+            
+            //Actualizar saldo del pedido
+            em.getTransaction().begin();
+            Pedido p = venta.getIdPedido(); 
+            p.setSaldo(p.getSaldo() - venta.getPrecioVenta());
+            em.merge(p);
+            em.getTransaction().commit();
+            
+            //Actualizar adedudo cliente
+            em.getTransaction().begin();
+            Cliente c = venta.getIdPedido().getCliente();
+            c.setAdeudo(c.getAdeudo() - venta.getPrecioVenta());
+            em.merge(c);
+            em.getTransaction().commit();
+            
+            //si el pedido ya esta pagado
             
             em.clear();
             return venta;

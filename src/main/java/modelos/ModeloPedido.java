@@ -5,6 +5,7 @@
 package modelos;
 
 import conexiones.ConexionBD;
+import entidades.Cliente;
 import entidades.Pedido;
 import entidades.PedidoProducto;
 import entidades.Producto;
@@ -65,11 +66,9 @@ public class ModeloPedido implements IModeloPedido {
         EntityManager em = this.conexionBD.crearConexion();
         try {
             em.getTransaction().begin();
-
             Query queryProductos = em.createQuery("SELECT e FROM PedidoProducto e WHERE e.pedido.id = :idPedido");
             queryProductos.setParameter("idPedido", pedido.getId()) ;
             List<PedidoProducto> pProds = queryProductos.getResultList();
-            
             em.getTransaction().commit();
                 
             pProds.forEach(pp -> {
@@ -122,6 +121,14 @@ public class ModeloPedido implements IModeloPedido {
                     System.out.println("cantidad sumar: "+pp.getCantidad());
                     sumarCantidadProducto(pp.getProducto(),pp.getCantidad() );
             });
+            
+            //Actualizar adeudo cliente
+            session.getTransaction().begin();
+            Cliente c = pedido.getCliente();
+            c.setAdeudo(c.getAdeudo() + pedido.getSaldo());
+            session.merge(c);
+            session.getTransaction().commit();
+            
             em.clear();
             return this.consultar(id);
         } catch (IllegalStateException e) {
@@ -234,7 +241,6 @@ public class ModeloPedido implements IModeloPedido {
                 e.printStackTrace();
             }
         }
-        
     }
 
     private void restarCantidadProducto(Producto p, int cantidad){
