@@ -34,10 +34,10 @@ public class ModeloPedido implements IModeloPedido {
     public Pedido consultar(Integer idPedido) {
         EntityManager em = this.conexionBD.crearConexion();
         try {
-            em.clear();
             em.getTransaction().begin();
             Pedido p = em.find(Pedido.class, idPedido);
             em.getTransaction().commit();
+            em.clear();
             return p;
         } catch (IllegalStateException e) {
             System.err.println("No se pudo consultar el pedido" + idPedido);
@@ -54,6 +54,7 @@ public class ModeloPedido implements IModeloPedido {
             Query query = em.createQuery("SELECT e FROM Pedido e");
             List<Pedido> pedido = query.getResultList();
             em.getTransaction().commit();
+            em.clear();
             return pedido ;
         } catch (IllegalStateException e) {
             System.err.println("No se pudieron consultar los pedidos");

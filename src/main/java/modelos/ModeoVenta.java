@@ -34,6 +34,7 @@ public class ModeoVenta implements IModeloVenta{
             em.getTransaction().begin();
             Venta v = em.find(Venta.class, idVenta);
             em.getTransaction().commit();
+            em.clear();
             return v;
         }
         catch(IllegalStateException e){
@@ -51,6 +52,7 @@ public class ModeoVenta implements IModeloVenta{
             Query query = em.createQuery("SELECT e FROM Venta e");
             List<Venta> ventas = query.getResultList();
             em.getTransaction().commit();
+            em.clear();
             return ventas;
         } catch (IllegalStateException e) {
             System.err.println("No se pudieron consultar las ventas");
@@ -89,6 +91,10 @@ public class ModeoVenta implements IModeloVenta{
             em.getTransaction().begin();
             Pedido p = em.find(Pedido.class, venta.getIdPedido().getId()); 
             p.setSaldo(p.getSaldo() - venta.getPrecioVenta());
+                //si el pedido ya esta pagado
+            if(p.getSaldo() == 0){
+                p.setPagado(true);
+            }
             em.merge(p);
             em.getTransaction().commit();
             
@@ -98,8 +104,6 @@ public class ModeoVenta implements IModeloVenta{
             c.setAdeudo(c.getAdeudo() - venta.getPrecioVenta());
             em.merge(c);
             em.getTransaction().commit();
-            
-            //si el pedido ya esta pagado
             
             em.clear();
             return venta;

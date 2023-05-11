@@ -31,6 +31,7 @@ public class ModeloCliente implements IModeloCliente{
         try {
             Cliente c = em.find(Cliente.class, idCliente);
             System.out.println(c);
+            em.clear();
             return c;
         } catch (IllegalStateException e) {
             System.err.println("No se pudo consultar el cliente" + idCliente);
@@ -45,7 +46,8 @@ public class ModeloCliente implements IModeloCliente{
         try {
             Query query = em.createQuery("SELECT e FROM Cliente e");
             List<Cliente> clientes = new ArrayList();
-            return clientes =query.getResultList();
+            em.clear();
+            return clientes;
         } catch (IllegalStateException e) {
             System.err.println("No se pudieron consultar los clientes");
             e.printStackTrace();
@@ -61,6 +63,7 @@ public class ModeloCliente implements IModeloCliente{
             Query query = em.createQuery("DELETE FROM Cliente e WHERE e.id = :idCliente");
             query.setParameter("idCliente", cliente.getId()).executeUpdate();
             em.getTransaction().commit();
+            em.clear();
             return cliente;
         } catch (IllegalStateException e) {
             System.err.println("No se pudo eliminar el cliente" + cliente.getId());
@@ -76,6 +79,7 @@ public class ModeloCliente implements IModeloCliente{
             em.getTransaction().begin();
             em.persist(cliente);
             em.getTransaction().commit();
+            em.clear();
             return cliente;
         } catch (IllegalStateException e) {
             System.err.println("No se pudo agregar el cliente" + cliente.getId());
@@ -94,6 +98,7 @@ public class ModeloCliente implements IModeloCliente{
                 em.getTransaction().begin();
                 em.merge(cliente);
                 em.getTransaction().commit();
+                em.clear();
                 return cliente;
             } catch (IllegalStateException e) {
                 System.err.println("No se pudo actualizar el cliente" + cliente.getId());
