@@ -34,7 +34,6 @@ public class ModeoVenta implements IModeloVenta{
             em.getTransaction().begin();
             Venta v = em.find(Venta.class, idVenta);
             em.getTransaction().commit();
-            em.clear();
             return v;
         }
         catch(IllegalStateException e){
@@ -47,12 +46,12 @@ public class ModeoVenta implements IModeloVenta{
     @Override
     public List<Venta> consultar() {
         EntityManager em = this.conexionBD.crearConexion();
+        em.clear();
         try {
             em.getTransaction().begin();
             Query query = em.createQuery("SELECT e FROM Venta e");
             List<Venta> ventas = query.getResultList();
             em.getTransaction().commit();
-            em.clear();
             return ventas;
         } catch (IllegalStateException e) {
             System.err.println("No se pudieron consultar las ventas");

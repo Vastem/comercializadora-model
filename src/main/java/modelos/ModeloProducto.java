@@ -30,7 +30,6 @@ public class ModeloProducto implements IModeloProducto{
         EntityManager em = (EntityManager) this.conexionBD.crearConexion();
         try {
             Producto p = em.find(Producto.class, idProducto);
-            em.clear();
             return p;
         } catch (IllegalStateException e) {
             System.err.println("No se pudo consultar el producto" + idProducto);
@@ -45,7 +44,6 @@ public class ModeloProducto implements IModeloProducto{
         try {
             Query query = em.createQuery("SELECT e FROM Producto e");
             List<Producto> prod = query.getResultList();
-            em.clear();
             return prod;
         } catch (IllegalStateException e) {
             System.err.println("No se pudieron consultar los productos");
