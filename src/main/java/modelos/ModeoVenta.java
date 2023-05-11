@@ -87,14 +87,14 @@ public class ModeoVenta implements IModeloVenta{
             
             //Actualizar saldo del pedido
             em.getTransaction().begin();
-            Pedido p = venta.getIdPedido(); 
+            Pedido p = em.find(Pedido.class, venta.getIdPedido().getId()); 
             p.setSaldo(p.getSaldo() - venta.getPrecioVenta());
             em.merge(p);
             em.getTransaction().commit();
             
             //Actualizar adedudo cliente
             em.getTransaction().begin();
-            Cliente c = venta.getIdPedido().getCliente();
+            Cliente c = em.find(Cliente.class, venta.getIdPedido().getCliente().getId());
             c.setAdeudo(c.getAdeudo() - venta.getPrecioVenta());
             em.merge(c);
             em.getTransaction().commit();

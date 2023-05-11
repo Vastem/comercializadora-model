@@ -34,6 +34,7 @@ public class ModeloPedido implements IModeloPedido {
     public Pedido consultar(Integer idPedido) {
         EntityManager em = this.conexionBD.crearConexion();
         try {
+            em.clear();
             em.getTransaction().begin();
             Pedido p = em.find(Pedido.class, idPedido);
             em.getTransaction().commit();
