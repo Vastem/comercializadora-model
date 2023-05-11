@@ -18,20 +18,21 @@ import jakarta.persistence.Query;
  *
  * @author Vastem
  */
-public class ModeloCliente implements IModeloCliente{
+public class ModeloCliente implements IModeloCliente {
+
     private final IConexionBD conexionBD;
 
     public ModeloCliente(IConexionBD conexionBD) {
         this.conexionBD = conexionBD;
     }
-    
+
     @Override
     public Cliente consultar(Integer idCliente) {
-       EntityManager em = (EntityManager) this.conexionBD.crearConexion();
+        EntityManager em = (EntityManager) this.conexionBD.crearConexion();
+        em.clear();
         try {
             Cliente c = em.find(Cliente.class, idCliente);
             System.out.println(c);
-            em.clear();
             return c;
         } catch (IllegalStateException e) {
             System.err.println("No se pudo consultar el cliente" + idCliente);
@@ -43,11 +44,11 @@ public class ModeloCliente implements IModeloCliente{
     @Override
     public List<Cliente> consultar() {
         EntityManager em = (EntityManager) this.conexionBD.crearConexion();
+        em.clear();
         try {
             Query query = em.createQuery("SELECT e FROM Cliente e");
             List<Cliente> clientes = new ArrayList();
-            em.clear();
-            return clientes;
+            return clientes = query.getResultList();
         } catch (IllegalStateException e) {
             System.err.println("No se pudieron consultar los clientes");
             e.printStackTrace();
@@ -59,7 +60,7 @@ public class ModeloCliente implements IModeloCliente{
     public Cliente eliminar(Cliente cliente) {
         EntityManager em = this.conexionBD.crearConexion();
         try {
-            em.getTransaction().begin();  
+            em.getTransaction().begin();
             Query query = em.createQuery("DELETE FROM Cliente e WHERE e.id = :idCliente");
             query.setParameter("idCliente", cliente.getId()).executeUpdate();
             em.getTransaction().commit();
@@ -92,8 +93,8 @@ public class ModeloCliente implements IModeloCliente{
     public Cliente actualizar(Cliente cliente) {
         EntityManager em = this.conexionBD.crearConexion();
         Cliente clienteActualizar = this.consultar(cliente.getId());
-        
-        if(clienteActualizar != null){
+
+        if (clienteActualizar != null) {
             try {
                 em.getTransaction().begin();
                 em.merge(cliente);
@@ -108,5 +109,5 @@ public class ModeloCliente implements IModeloCliente{
         }
         return null;
     }
-    
+
 }
