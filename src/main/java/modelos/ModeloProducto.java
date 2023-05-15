@@ -18,16 +18,18 @@ import jakarta.persistence.Query;
  *
  * @author Vastem
  */
-public class ModeloProducto implements IModeloProducto{
+public class ModeloProducto implements IModeloProducto {
+
     private final IConexionBD conexionBD;
 
     public ModeloProducto(IConexionBD conexionBD) {
         this.conexionBD = conexionBD;
     }
-    
+
     @Override
     public Producto consultar(Integer idProducto) {
         EntityManager em = (EntityManager) this.conexionBD.crearConexion();
+        em.clear();
         try {
             Producto p = em.find(Producto.class, idProducto);
             return p;
@@ -41,6 +43,7 @@ public class ModeloProducto implements IModeloProducto{
     @Override
     public List<Producto> consultar() {
         EntityManager em = (EntityManager) this.conexionBD.crearConexion();
+        em.clear();
         try {
             Query query = em.createQuery("SELECT e FROM Producto e");
             List<Producto> prod = query.getResultList();
@@ -56,7 +59,7 @@ public class ModeloProducto implements IModeloProducto{
     public Producto eliminar(Producto producto) {
         EntityManager em = this.conexionBD.crearConexion();
         try {
-            em.getTransaction().begin();  
+            em.getTransaction().begin();
             Query query = em.createQuery("DELETE FROM Producto e WHERE e.id = :idProducto");
             query.setParameter("idProducto", producto.getId()).executeUpdate();
             em.getTransaction().commit();
@@ -89,8 +92,8 @@ public class ModeloProducto implements IModeloProducto{
     public Producto actualizar(Producto producto) {
         EntityManager em = this.conexionBD.crearConexion();
         Producto clienteActualizar = this.consultar(producto.getId());
-        
-        if(clienteActualizar != null){
+
+        if (clienteActualizar != null) {
             try {
                 em.getTransaction().begin();
                 em.merge(producto);
@@ -105,5 +108,5 @@ public class ModeloProducto implements IModeloProducto{
         }
         return null;
     }
-    
+
 }

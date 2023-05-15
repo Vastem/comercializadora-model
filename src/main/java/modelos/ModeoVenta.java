@@ -6,14 +6,13 @@ package modelos;
 
 import entidades.Cliente;
 import entidades.Pedido;
-import entidades.PedidoProducto;
+import entidades.Producto;
 import entidades.Venta;
 import interfaces.IConexionBD;
 import interfaces.IModeloVenta;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.util.List;
-import org.hibernate.Session;
 
 /**
  *
@@ -93,7 +92,14 @@ public class ModeoVenta implements IModeloVenta{
                 //si el pedido ya esta pagado
             if(p.getSaldo() == 0){
                 p.setPagado(true);
+                p.getPedidosProducto().forEach(pedProd -> {
+                    Producto prod = pedProd.getProducto();
+                    prod.setCantidad(prod.getCantidad() - pedProd.getCantidad());
+                    prod.setCantidadApartada(prod.getCantidadApartada() - pedProd.getCantidad());
+                });
             }
+            
+            
             em.merge(p);
             em.getTransaction().commit();
             
