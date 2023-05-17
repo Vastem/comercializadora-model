@@ -4,15 +4,12 @@
  */
 package modelos;
 
-import conexiones.ConexionBD;
 import entidades.Cliente;
 import entidades.Pedido;
 import entidades.PedidoProducto;
 import entidades.Producto;
-import entidades.Venta;
 import interfaces.IConexionBD;
 import interfaces.IModeloPedido;
-import java.util.ArrayList;
 import java.util.List;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -63,7 +60,7 @@ public class ModeloPedido implements IModeloPedido {
     }
 
     @Override
-    public Pedido eliminar(Pedido pedido) {
+    public Pedido eliminar(Pedido pedido)throws Exception {
         EntityManager em = this.conexionBD.crearConexion();
         try {
             em.getTransaction().begin();
@@ -93,6 +90,13 @@ public class ModeloPedido implements IModeloPedido {
             System.err.println("No se pudo eliminar el pedido" + pedido.getId());
             e.printStackTrace();
             return null;
+        }catch(Exception e){
+            System.err.println("No se pudo eliminar el pedido" + pedido.getId());
+            e.printStackTrace();
+            throw new Exception("No se pudo eliminar el pedido");
+        }finally{
+            em.getTransaction().commit();
+            em.clear();
         }
     }
 

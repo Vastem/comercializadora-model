@@ -14,7 +14,7 @@ import java.util.List;
 public interface IModeloPedido {
     public Pedido consultar(Integer idPedido);
     public List<Pedido> consultar();
-    public Pedido eliminar(Pedido pedido);
+    public Pedido eliminar(Pedido pedido) throws Exception;
     public Pedido registrar(Pedido pedido);
     public Pedido actualizar(Pedido pedido);
 }
